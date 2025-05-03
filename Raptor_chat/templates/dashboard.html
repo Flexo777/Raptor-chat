@@ -1,0 +1,75 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard{% endblock %}
+
+{% block content %}
+<div class="flex h-screen">
+  <!-- Sidebar -->
+  <nav class="bg-[#3b2a5a] w-20 flex flex-col p-4 space-y-8 text-[#6e5a9a] text-sm select-none">
+    <div class="flex justify-center mb-6">
+      <img src="{{ url_for('static', filename='images/rocket-orange.png') }}" alt="RAPTOR Logo" class="w-8 h-8">
+    </div>
+    
+    <a href="{{ url_for('dashboard') }}" class="flex flex-col items-center space-y-1 text-orange-600">
+      <i class="fas fa-tachometer-alt text-xl"></i>
+      <span class="text-xs">Dashboard</span>
+    </a>
+    
+    <a href="{{ url_for('chat') }}" class="flex flex-col items-center space-y-1 hover:text-orange-600 transition">
+      <i class="fas fa-comments text-xl"></i>
+      <span class="text-xs">Chat</span>
+    </a>
+    
+    <a href="#" class="flex flex-col items-center space-y-1 hover:text-orange-600 transition">
+      <i class="fas fa-cog text-xl"></i>
+      <span class="text-xs">Settings</span>
+    </a>
+  </nav>
+
+  <!-- Main Content -->
+  <main class="flex-1 p-6 overflow-y-auto">
+    <header class="flex justify-between items-center pb-4 border-b border-[#4a3a7a]">
+      <div class="flex items-center space-x-3">
+        <img src="{{ url_for('static', filename='images/rocket-orange.png') }}" alt="RAPTOR Logo" class="w-6 h-6">
+        <h1 class="text-lg font-semibold">Welcome, {{ current_user.username }}</h1>
+      </div>
+      <div class="flex items-center space-x-4">
+        <a href="{{ url_for('logout') }}" class="text-sm text-[#6e5a9a] hover:text-orange-600 transition">Logout</a>
+      </div>
+    </header>
+
+    <section class="mt-6 grid grid-cols-1 md:grid-cols-3 gap-6">
+      <!-- Online Users -->
+      <div class="bg-[#3b2a5a] rounded-lg p-4">
+        <h2 class="text-orange-600 font-semibold mb-4">Online Users</h2>
+        <div class="space-y-3">
+          {% for user in online_users %}
+          <div class="flex justify-between items-center bg-[#241a44] rounded p-3">
+            <div class="flex items-center space-x-3">
+              <div class="w-2 h-2 rounded-full bg-green-500"></div>
+              <span class="text-sm">{{ user.username }}</span>
+            </div>
+            <a href="{{ url_for('start_chat', user_id=user.id) }}" class="text-xs bg-[#4a3a7a] px-3 py-1 rounded hover:bg-orange-600 transition">
+              Chat
+            </a>
+          </div>
+          {% endfor %}
+        </div>
+      </div>
+
+      <!-- Recent Activity -->
+      <div class="bg-[#3b2a5a] rounded-lg p-4 md:col-span-2">
+        <h2 class="text-orange-600 font-semibold mb-4">Recent Activity</h2>
+        <div class="space-y-3">
+          {% for activity in recent_activity %}
+          <div class="bg-[#241a44] rounded p-3">
+            <p class="text-sm">{{ activity.message }}</p>
+            <p class="text-xs text-[#6e5a9a] mt-1">{{ activity.timestamp }}</p>
+          </div>
+          {% endfor %}
+        </div>
+      </div>
+    </section>
+  </main>
+</div>
+{% endblock %}
