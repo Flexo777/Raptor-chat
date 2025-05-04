@@ -1,0 +1,124 @@
+{% extends "base.html" %}
+
+{% block title %}Chat with {{ partner.username }}{% endblock %}
+
+{% block content %}
+<div class="min-h-screen bg-[#2e204d] text-white p-6">
+  <div class="max-w-3xl mx-auto">
+    <div class="flex justify-between items-center mb-4">
+      <div>
+        <h2 class="text-xl font-bold text-orange-500">Chat with {{ partner.username }}</h2>
+        <p class="text-sm text-[#ccc]">Say something nice 👋</p>
+      </div>
+      <a href="{{ url_for('dashboard') }}" class="text-sm text-orange-400 hover:text-orange-300 transition">
+        ← Back to Dashboard
+      </a>
+    </div>
+
+    <div class="bg-[#3b2a5a] rounded-lg p-4 h-96 overflow-y-auto shadow-inner mb-4 space-y-3" id="chat-box">
+      {% for message in messages %}
+        <div class="mb-2">
+          {% if message.sender_id == current_user.id %}
+            <div class="text-right">
+              {% if message.type == 'text' %}
+                <p class="inline-block bg-orange-500 text-white px-4 py-2 rounded-tl-lg rounded-br-lg text-sm max-w-[70%]">
+                  {{ message.content }}
+                </p>
+              {% elif message.type == 'image' %}
+                <img src="{{ url_for('static', filename='uploads/' ~ message.content) }}"
+                     class="max-w-[70%] rounded shadow-lg mb-1" alt="Image">
+              {% elif message.type == 'video' %}
+                <video controls class="max-w-[70%] rounded shadow-lg mb-1">
+                  <source src="{{ url_for('static', filename='uploads/' ~ message.content) }}" type="video/mp4">
+                  Your browser does not support the video tag.
+                </video>
+              {% endif %}
+              <p class="text-xs text-gray-400 mt-1">{{ message.timestamp.strftime('%H:%M') }}</p>
+            </div>
+          {% else %}
+            <div class="text-left">
+              {% if message.type == 'text' %}
+                <p class="inline-block bg-[#4e3e75] text-white px-4 py-2 rounded-tr-lg rounded-bl-lg text-sm max-w-[70%]">
+                  {{ message.content }}
+                </p>
+              {% elif message.type == 'image' %}
+                <img src="{{ url_for('static', filename='uploads/' ~ message.content) }}"
+                     class="max-w-[70%] rounded shadow-lg mb-1" alt="Image">
+              {% elif message.type == 'video' %}
+                <video controls class="max-w-[70%] rounded shadow-lg mb-1">
+                  <source src="{{ url_for('static', filename='uploads/' ~ message.content) }}" type="video/mp4">
+                  Your browser does not support the video tag.
+                </video>
+              {% endif %}
+              <p class="text-xs text-gray-400 mt-1">
+                {% if message.timestamp %}
+                  {{ message.timestamp.strftime('%H:%M') }}
+                {% else %}
+                  No timestamp
+                {% endif %}
+              </p>
+            </div>
+          {% endif %}
+        </div>
+      {% endfor %}
+    </div>
+
+    <form method="POST" enctype="multipart/form-data" class="flex items-center space-x-2">
+      <input type="text" name="message" id="message" placeholder="Type a message..."
+             class="flex-grow px-4 py-2 rounded bg-[#241a44] border border-[#4a3a7a] text-sm focus:outline-none focus:ring-2 focus:ring-orange-500" oninput="previewMessage()">
+      <input type="file" name="media" id="media" accept="image/*,video/mp4"
+             class="text-sm text-white file:bg-orange-600 file:text-white file:border-0 file:px-3 file:py-1 file:rounded" onchange="previewMedia()">
+      <button type="submit" class="bg-orange-600 hover:bg-orange-700 text-white px-4 py-2 rounded">
+        Send
+      </button>
+    </form>
+
+    <div id="preview" class="mt-4 p-4 bg-[#3b2a5a] rounded-lg text-white">
+      <h3 class="font-semibold text-lg">Preview:</h3>
+      <p id="preview-text" class="text-sm"></p>
+      <img id="preview-image" class="max-w-[70%] rounded shadow-lg mb-1 hidden" alt="Preview Image">
+      <video id="preview-video" class="max-w-[70%] rounded shadow-lg mb-1 hidden" controls>
+        <source id="video-source" type="video/mp4">
+      </video>
+    </div>
+  </div>
+</div>
+
+<script>
+  function previewMessage() {
+    var messageText = document.getElementById('message').value;
+    document.getElementById('preview-text').textContent = messageText;
+  }
+
+  function previewMedia() {
+    var mediaInput = document.getElementById('media');
+    var previewImage = document.getElementById('preview-image');
+    var previewVideo = document.getElementById('preview-video');
+    var videoSource = document.getElementById('video-source');
+
+    previewImage.classList.add('hidden');
+    previewVideo.classList.add('hidden');
+    previewImage.src = '';
+    videoSource.src = '';
+
+    if (mediaInput.files && mediaInput.files[0]) {
+      var file = mediaInput.files[0];
+      var fileReader = new FileReader();
+
+      if (file.type.startsWith('image/')) {
+        fileReader.onload = function(e) {
+          previewImage.src = e.target.result;
+          previewImage.classList.remove('hidden');
+        };
+        fileReader.readAsDataURL(file);
+      } else if (file.type.startsWith('video/')) {
+        fileReader.onload = function(e) {
+          videoSource.src = e.target.result;
+          previewVideo.classList.remove('hidden');
+        };
+        fileReader.readAsDataURL(file);
+      }
+    }
+  }
+</script>
+{% endblock %}

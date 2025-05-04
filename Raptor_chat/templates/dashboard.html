@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard{% endblock %}
+
+{% block content %}
+<div class="min-h-screen bg-[#2e204d] text-white p-6">
+  <div class="max-w-4xl mx-auto">
+    <!-- Header -->
+    <div class="flex justify-between items-center mb-6">
+      <div>
+        <h1 class="text-2xl font-bold text-orange-500">Welcome, {{ current_user.username }}!</h1>
+        <p class="text-sm text-[#c2b3e0]">Let's start chatting 🚀</p>
+      </div>
+      <a href="{{ url_for('logout') }}" class="bg-red-500 hover:bg-red-600 text-sm px-4 py-2 rounded shadow">
+        Logout
+      </a>
+    </div>
+
+    <!-- Online Users -->
+    <div class="bg-[#3b2a5a] rounded-lg p-4 shadow-md">
+      <h2 class="text-lg font-semibold text-orange-400 mb-3">Online Users</h2>
+
+      {% if online_users %}
+        <ul class="space-y-3">
+          {% for user in online_users %}
+            <li>
+              <a href="{{ url_for('chat', user_id=user.id) }}"
+                 class="flex items-center justify-between bg-[#241a44] hover:bg-[#4e3e75] transition px-4 py-2 rounded">
+                <div>
+                  <p class="font-medium text-white">{{ user.username }}</p>
+                  <span class="text-xs text-green-400">Online</span>
+                </div>
+                <svg class="w-4 h-4 text-orange-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                </svg>
+              </a>
+            </li>
+          {% endfor %}
+        </ul>
+      {% else %}
+        <p class="text-sm text-[#a29db8]">No users online right now.</p>
+      {% endif %}
+    </div>
+
+    <!-- Recent Activity (Optional) -->
+    <div class="mt-6 bg-[#3b2a5a] rounded-lg p-4 shadow-md">
+      <h2 class="text-lg font-semibold text-orange-400 mb-3">Recent Activity</h2>
+      <ul class="space-y-2 text-sm text-[#ccc]">
+        {% for log in recent_activity %}
+          <li>• {{ log.message }} <span class="text-xs text-gray-400">({{ log.timestamp }})</span></li>
+        {% endfor %}
+      </ul>
+    </div>
+  </div>
+</div>
+{% endblock %}
